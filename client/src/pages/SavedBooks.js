@@ -3,11 +3,42 @@ import { Jumbotron, Container, CardColumns, Card, Button } from 'react-bootstrap
 
 import { getMe, deleteBook } from '../utils/API';
 import Auth from '../utils/auth';
-import { removeBookId } from '../utils/localStorage';
+import { getSavedBookIds, removeBookId, saveBookIds } from '../utils/localStorage';
+
+import { REMOVE_BOOK } from '../utils/mutations';
+import { useQuery, useMutation } from '@apollo/react-hooks';
+import { GET_ME } from '../utils/queries';
 
 const SavedBooks = () => {
-  const [userData, setUserData] = useState({});
+  //const [userData, setUserData] = useState({});
+  const { loading, data } = useQuery(GET_ME);
+  const userData = data?.me || [];
 
+  const [removeBook] = useMutation(REMOVE_BOOK);
+
+  const savedBooks = userData.savedBooks.map ((book) => book.bookId);
+  console.log(savedBooks);
+  saveBookIds(getSavedBookIds);
+    
+  const handleDeleteBook = async (bookId) => {
+    const response = await deleteBook(bookId);
+    if (!response.ok) {
+      throw new Error('something went wrong!');
+    }
+    removeBookId(bookId);
+    const newSavedBooks = userData.savedBooks.filter((book) => book.bookId !== bookId);
+    userData.savedBooks = newSavedBooks;
+    saveBookIds(getSavedBookIds);
+    console.log(userData);
+    removeBook({
+      variables: {
+        bookId,
+      },
+      refetchQueries: [{ query: GET_ME }],
+    });
+  }
+
+  /*
   // use this to determine if `useEffect()` hook needs to run again
   const userDataLength = Object.keys(userData).length;
 
@@ -35,7 +66,9 @@ const SavedBooks = () => {
 
     getUserData();
   }, [userDataLength]);
+  */
 
+  /*
   // create function that accepts the book's mongo _id value as param and deletes the book from the database
   const handleDeleteBook = async (bookId) => {
     const token = Auth.loggedIn() ? Auth.getToken() : null;
@@ -64,6 +97,7 @@ const SavedBooks = () => {
   if (!userDataLength) {
     return <h2>LOADING...</h2>;
   }
+  */
 
   return (
     <>

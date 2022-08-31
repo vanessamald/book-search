@@ -4,6 +4,9 @@ import { Form, Button, Alert } from 'react-bootstrap';
 import { createUser } from '../utils/API';
 import Auth from '../utils/auth';
 
+import { ADD_USER } from '../utils/mutations';
+import { useMutation } from '@apollo/react-hooks';
+
 const SignupForm = () => {
   // set initial form state
   const [userFormData, setUserFormData] = useState({ username: '', email: '', password: '' });
@@ -11,6 +14,9 @@ const SignupForm = () => {
   const [validated] = useState(false);
   // set state for alert
   const [showAlert, setShowAlert] = useState(false);
+
+  // create useMutation hook for adding new user to our database
+  const [addUserMutation] = useMutation(ADD_USER); // TESTING
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;

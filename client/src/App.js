@@ -10,9 +10,10 @@ import { ApolloClient } from 'apollo-client';
 // create ApolloClient instance
 const client = new ApolloClient({
     request: operation => {
+      const token = localStorage.getItem('id_token');
         operation.setContext({
             headers: {
-                authorization: localStorage.getItem('token')
+                authorization: token ? `Bearer ${token}` : ''
             }
         });
     },
@@ -22,6 +23,7 @@ const client = new ApolloClient({
 
 function App() {
   return (
+    <ApolloProvider client={client}>
     <Router>
       <>
         <Navbar />
@@ -32,6 +34,7 @@ function App() {
         </Switch>
       </>
     </Router>
+    </ApolloProvider>
   );
 }
 
